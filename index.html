@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dark Carnival Maze</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="sigil"></span>
+      <span>Dark Carnival</span>
+    </div>
+    <nav class="nav">
+      <a href="#work">Work</a>
+      <a href="#contact" class="cta">Contact</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="copy">
+        <h1>Enter the Dark Carnival.</h1>
+        <p class="sub">
+          Guide the carousel horse through the mint-lit maze.
+          Win to unlock the invitation.
+        </p>
+
+        <div class="pillrow">
+          <span class="pill">Move: Arrow Keys / WASD</span>
+          <span class="pill">Goal: Reach the EXIT</span>
+        </div>
+
+        <div class="buttons">
+          <button id="pauseBtn" class="btn ghost" type="button">Pause</button>
+          <button id="restartBtn" class="btn" type="button">Restart</button>
+        </div>
+
+        <p class="fine">
+          Tip: This is an interactive landing page. Scroll for the usual stuff.
+        </p>
+      </div>
+
+      <div class="gameframe">
+        <div class="frameTop">
+          <span class="status" id="hudStatus">RUNNING</span>
+          <span class="legend">
+            <span class="dot mint"></span> Walls
+            <span class="dot pink"></span> Exit
+          </span>
+        </div>
+
+        <canvas id="game" width="900" height="600"></canvas>
+<!-- Mobile D-Pad (shows on touch devices) -->
+<div id="dpad" class="dpad" aria-label="Mobile controls">
+  <button class="dpad-btn up" data-move="up" aria-label="Up">▲</button>
+  <button class="dpad-btn left" data-move="left" aria-label="Left">◀</button>
+  <button class="dpad-btn right" data-move="right" aria-label="Right">▶</button>
+  <button class="dpad-btn down" data-move="down" aria-label="Down">▼</button>
+</div>
+
+        <div class="frameBottom">
+          <span class="tiny">Dark Fantasy Carnival</span>
+          <span class="tiny">Win → Email Unlock</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="work" class="section">
+      <h2>Work</h2>
+      <p>
+        Replace this section with your reel, services, deck, or portfolio.
+      </p>
+      <div class="cards">
+        <div class="card">Project / Service</div>
+        <div class="card">Project / Service</div>
+        <div class="card">Project / Service</div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <h2>Contact</h2>
+      <p>Put your standard CTA or booking link here.</p>
+    </section>
+  </main>
+
+  <!-- WIN OVERLAY -->
+  <div id="overlay" class="overlay" hidden>
+    <div class="ticket">
+      <div class="ticketHeader">
+        <div class="stamp">ADMIT ONE</div>
+        <h3>You Escaped the Maze</h3>
+        <p class="ticketSub">Leave your email to receive the invitation.</p>
+      </div>
+
+      <!-- Replace REPLACE_ME after Formspree setup -->
+      <form id="emailForm" name="win-email" method="POST" data-netlify="true" netlify>
+  <input type="hidden" name="form-name" value="win-email" />
+
+        <label class="label" for="emailInput">Email</label>
+        <div class="row">
+          <input
+            id="emailInput"
+            name="email"
+            type="email"
+            placeholder="you@email.com"
+            required
+          />
+          <button class="btn" type="submit">Unlock</button>
+        </div>
+        <p id="formStatus" class="formStatus"></p>
+      </form>
+
+      <div class="ticketFooter">
+        <button id="closeBtn" class="btn ghost" type="button">Close</button>
+        <button id="playAgainBtn" class="btn" type="button">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
