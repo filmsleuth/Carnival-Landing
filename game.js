@@ -292,6 +292,7 @@ emailForm.addEventListener("submit", async (e) => {
     if (res.ok) {
       formStatus.textContent = "Unlocked. You’re on the list.";
       emailForm.reset();
+      setTimeout(() => closeOverlayAndReset(), 900);
     } else {
       formStatus.textContent = "Something went wrong — please try again.";
     }
@@ -304,3 +305,4 @@ emailForm.addEventListener("submit", async (e) => {
 overlay.hidden = true;
 setHud();
 loop();
+
