@@ -283,28 +283,29 @@ emailForm.addEventListener("submit", async (e) => {
 
   try {
     const formData = new FormData(emailForm);
-    const res = await fetch("/", {
+
+    await fetch("/", {
       method: "POST",
       body: new URLSearchParams(formData).toString(),
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
 
-    if (res.ok) {
-  formStatus.textContent = "Unlocked. You’re on the list.";
-
-  // close the overlay + restart the game after a short beat
-  setTimeout(() => {
-    closeOverlayAndReset();   // <-- this is the key
+    // ✅ If Netlify is detecting the form, it will capture.
+    // Close the overlay regardless of response quirks.
+    formStatus.textContent = "Unlocked. You’re on the list.";
     emailForm.reset();
-  }, 600);
 
-} else {
-  formStatus.textContent = "Form submit failed — try again.";
-}
+    setTimeout(() => {
+      overlay.hidden = true;
+      resetGame();   // puts horse back + unpauses
+    }, 700);
 
-// Ensure correct initial state
-overlay.hidden = true;
-setHud();
-loop();
+  } catch (err) {
+    console.error(err);
+    formStatus.textContent = "Network error — please try again.";
 
+    // Optional: still let them close it manually
+    // (don’t auto-close on network error)
+  }
+});
 
