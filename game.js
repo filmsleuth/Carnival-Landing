@@ -4,12 +4,17 @@ const ctx = canvas.getContext("2d");
 const overlay = document.getElementById("overlay");
 const closeBtn = document.getElementById("closeBtn");
 const playAgainBtn = document.getElementById("playAgainBtn");
-const pauseBtn = document.getElementById("pauseBtn");
 const restartBtn = document.getElementById("restartBtn");
 const hudStatus = document.getElementById("hudStatus");
 
 const emailForm = document.getElementById("emailForm");
 const formStatus = document.getElementById("formStatus");
+
+// Mobile D-pad buttons (exist on page, may be hidden by CSS on desktop)
+const dpadUp = document.querySelector(".dpad-btn.up");
+const dpadDown = document.querySelector(".dpad-btn.down");
+const dpadLeft = document.querySelector(".dpad-btn.left");
+const dpadRight = document.querySelector(".dpad-btn.right");
 
 // --- Load horse image ---
 const horseImg = new Image();
@@ -46,10 +51,6 @@ const map = [
 const rows = map.length;
 const cols = map[0].length;
 
-const tileSize = Math.floor(Math.min(canvas.width / cols, canvas.height / rows));
-const offsetX = Math.floor((canvas.width - cols * tileSize) / 2);
-const offsetY = Math.floor((canvas.height - rows * tileSize) / 2);
-
 let paused = false;
 let hasWon = false;
 
@@ -71,26 +72,27 @@ function resetGame() {
   hasWon = false;
   paused = false;
   setHud();
-  overlay.hidden = true;
 }
 
 function openWinOverlay() {
   hasWon = true;
   paused = true;
   setHud();
+
   overlay.hidden = false;
   formStatus.textContent = "";
+
   const inp = document.getElementById("emailInput");
   if (inp) inp.focus();
 }
 
-// ✅ FIX: one single function that ALWAYS gets you back into the game
+// Always closes overlay + returns to playable state
 function closeOverlayAndReset() {
   overlay.hidden = true;
-  resetGame(); // resets position and unpauses
+  resetGame();
 }
 
-// ✅ FIX: robust movement (won’t move while overlay is open)
+// Robust movement gate: no movement while overlay is open
 function canPlay() {
   return !paused && !hasWon && overlay.hidden;
 }
@@ -108,6 +110,13 @@ function tryMove(dr, dc) {
   player.c = nc;
 
   if (t === 2) openWinOverlay();
+}
+
+function computeGrid() {
+  const tileSize = Math.floor(Math.min(canvas.width / cols, canvas.height / rows));
+  const offsetX = Math.floor((canvas.width - cols * tileSize) / 2);
+  const offsetY = Math.floor((canvas.height - rows * tileSize) / 2);
+  return { tileSize, offsetX, offsetY };
 }
 
 function drawWalls(x, y, size) {
@@ -155,6 +164,7 @@ function drawBackground() {
 
   ctx.save();
   ctx.globalAlpha = 0.22;
+
   ctx.beginPath();
   ctx.fillStyle = "rgba(255,79,179,0.18)";
   ctx.arc(canvas.width * 0.22, canvas.height * 0.22, canvas.width * 0.35, 0, Math.PI * 2);
@@ -164,10 +174,13 @@ function drawBackground() {
   ctx.beginPath();
   ctx.arc(canvas.width * 0.78, canvas.height * 0.35, canvas.width * 0.34, 0, Math.PI * 2);
   ctx.fill();
+
   ctx.restore();
 }
 
 function drawMap() {
+  const { tileSize, offsetX, offsetY } = computeGrid();
+
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const x = offsetX + c * tileSize;
@@ -184,6 +197,8 @@ function drawMap() {
 }
 
 function drawPlayer() {
+  const { tileSize, offsetX, offsetY } = computeGrid();
+
   const px = offsetX + player.c * tileSize + tileSize / 2;
   const py = offsetY + player.r * tileSize + tileSize / 2;
 
@@ -212,29 +227,18 @@ function drawPlayer() {
   }
 }
 
-function drawHUDText() {
-  ctx.save();
-  ctx.fillStyle = COLORS.text;
-  ctx.font = "14px system-ui";
-  ctx.textAlign = "left";
-  ctx.textBaseline = "top";
-  ctx.fillText(hasWon ? "YOU WIN" : (paused ? "PAUSED" : "REACH THE EXIT"), 14, 12);
-  ctx.restore();
-}
-
 function loop() {
   drawBackground();
   drawMap();
   drawPlayer();
-  drawHUDText();
   requestAnimationFrame(loop);
 }
 
-// --- Controls ---
+// --- Keyboard Controls ---
 window.addEventListener("keydown", (e) => {
   const k = e.key.toLowerCase();
 
-  // ✅ FIX: ESC ALWAYS closes + resets if overlay is open
+  // ESC always closes overlay if open
   if (e.key === "Escape" && !overlay.hidden) {
     closeOverlayAndReset();
     return;
@@ -244,76 +248,59 @@ window.addEventListener("keydown", (e) => {
   if (k === "arrowdown" || k === "s") tryMove(1, 0);
   if (k === "arrowleft" || k === "a") tryMove(0, -1);
   if (k === "arrowright" || k === "d") tryMove(0, 1);
-
-  if (k === " ") {
-    // Space toggles pause only when not in win overlay
-    if (overlay.hidden && !hasWon) {
-      paused = !paused;
-      setHud();
-    }
-  }
 });
 
-pauseBtn.addEventListener("click", () => {
-  if (!overlay.hidden || hasWon) return;
-  paused = !paused;
-  setHud();
-});
-
+// --- Buttons ---
 restartBtn.addEventListener("click", () => {
-  resetGame();
+  closeOverlayAndReset(); // also closes overlay if it’s open
 });
 
-// ✅ FIX: Buttons now always reset cleanly
 closeBtn.addEventListener("click", closeOverlayAndReset);
 playAgainBtn.addEventListener("click", closeOverlayAndReset);
 
-// --- Email form ---
+// --- Mobile D-pad (tap/press) ---
+function bindDpad(btn, dr, dc) {
+  if (!btn) return;
+
+  const press = (e) => {
+    e.preventDefault();
+    tryMove(dr, dc);
+  };
+
+  btn.addEventListener("click", press);
+  btn.addEventListener("touchstart", press, { passive: false });
+}
+
+bindDpad(dpadUp, -1, 0);
+bindDpad(dpadDown, 1, 0);
+bindDpad(dpadLeft, 0, -1);
+bindDpad(dpadRight, 0, 1);
+
+// --- Netlify form submit (stay on page, show status) ---
 emailForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   formStatus.textContent = "Submitting...";
 
   try {
     const formData = new FormData(emailForm);
-    const res = await fetch(emailForm.action, {
+    const res = await fetch("/", {
       method: "POST",
-      body: formData,
-      headers: { "Accept": "application/json" }
+      body: new URLSearchParams(formData).toString(),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
 
     if (res.ok) {
       formStatus.textContent = "Unlocked. You’re on the list.";
       emailForm.reset();
     } else {
-        formStatus.textContent = "Submitted. Check your inbox soon.";
-
+      formStatus.textContent = "Something went wrong — please try again.";
     }
   } catch {
-    formStatus.textContent = "Network error — try again after the form is connected.";
+    formStatus.textContent = "Network error — please try again.";
   }
 });
-// --- Mobile D-Pad wiring ---
-const dpad = document.getElementById("dpad");
-if (dpad) {
-  const moveMap = {
-    up: () => tryMove(-1, 0),
-    down: () => tryMove(1, 0),
-    left: () => tryMove(0, -1),
-    right: () => tryMove(0, 1),
-  };
 
-  // Use pointer events so it works on iOS/Android
-  dpad.querySelectorAll("[data-move]").forEach((btn) => {
-    const dir = btn.getAttribute("data-move");
-    const fn = moveMap[dir];
-    if (!fn) return;
-
-    btn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      fn();
-    });
-  });
-}
-
+// Ensure correct initial state
+overlay.hidden = true;
 setHud();
 loop();
