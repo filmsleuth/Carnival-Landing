@@ -27,41 +27,6 @@ body{
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-.topbar{
-  position: sticky;
-  top:0;
-  z-index: 30;
-  padding: 14px 18px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background: rgba(6, 7, 12, 0.68);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(10px);
-}
-
-.brand{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  font-weight:800;
-  letter-spacing:0.3px;
-}
-.sigil{
-  width:14px; height:14px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, var(--mint), var(--pink));
-  box-shadow: 0 0 18px var(--mintGlow), 0 0 18px var(--pinkGlow);
-}
-
-.nav{ display:flex; gap:14px; align-items:center; }
-.nav a{
-  color: var(--muted);
-  text-decoration:none;
-  font-weight:700;
-}
-.nav a:hover{ color: var(--text); }
-
 .wrap{ max-width: 1100px; margin: 0 auto; padding: 24px 18px 60px; }
 
 .hero{
@@ -74,52 +39,17 @@ body{
   .hero{ grid-template-columns: 1fr 1.2fr; }
 }
 
-.copy h1{
+.brandTitle{
   margin: 12px 0 10px;
   font-size: 44px;
   line-height: 1.05;
+  letter-spacing: 0.3px;
+  font-weight: 900;
 }
-.sub{ margin:0 0 12px; color: var(--muted); max-width: 42ch; }
-.pillrow{ display:flex; flex-wrap:wrap; gap:10px; margin: 10px 0 16px; }
-.pill{
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,0.22);
-  color: rgba(238,243,255,0.82);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.buttons{ display:flex; gap:10px; align-items:center; margin-bottom: 10px; }
-.btn{
-  border:0;
-  cursor:pointer;
-  font-weight:900;
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: linear-gradient(135deg, var(--mint), rgba(184,255,231,0.70));
-  color: #061016;
-  box-shadow: 0 14px 40px rgba(0,0,0,0.35), 0 0 26px rgba(184,255,231,0.18);
-}
-.btn.ghost{
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border);
-  box-shadow: none;
-}
-.cta{
-  padding: 9px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,79,179,0.35);
-  color: var(--text) !important;
-  background: rgba(255,79,179,0.08);
-  box-shadow: 0 0 18px rgba(255,79,179,0.14);
-}
-
-.fine{ margin: 8px 0 0; font-size: 13px; color: rgba(238,243,255,0.55); }
+.sub{ margin:0 0 12px; color: var(--muted); max-width: 62ch; }
 
 .gameframe{
+  position: relative;
   border-radius: 18px;
   overflow:hidden;
   border: 1px solid rgba(255,255,255,0.10);
@@ -153,23 +83,21 @@ body{
 
 canvas{ display:block; width:100%; height:auto; }
 
-.section{ margin-top: 34px; padding-top: 6px; }
-.section h2{ margin:0 0 10px; }
-.section p{ margin:0 0 14px; color: var(--muted); max-width: 70ch; }
-
-.cards{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+.btn{
+  border:0;
+  cursor:pointer;
+  font-weight:900;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, var(--mint), rgba(184,255,231,0.70));
+  color: #061016;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.35), 0 0 26px rgba(184,255,231,0.18);
 }
-@media (min-width: 900px){
-  .cards{ grid-template-columns: repeat(3, 1fr); }
-}
-.card{
-  padding: 16px;
-  border-radius: 16px;
+.btn.ghost{
+  background: transparent;
+  color: var(--text);
   border: 1px solid var(--border);
-  background: rgba(0,0,0,0.20);
+  box-shadow: none;
 }
 
 /* Overlay / Ticket */
@@ -180,7 +108,7 @@ canvas{ display:block; width:100%; height:auto; }
   place-items:center;
   padding: 18px;
   background: rgba(0,0,0,0.78);
-  z-index: 60;
+  z-index: 999;
 }
 .ticket{
   width: min(640px, 96vw);
@@ -241,4 +169,38 @@ input:focus{
   gap: 10px;
   justify-content:flex-end;
   margin-top: 14px;
+}
+
+/* Mobile D-pad */
+.dpad{
+  display:none;
+  position:absolute;
+  left: 12px;
+  bottom: 64px; /* sits above bottom bar */
+  width: 132px;
+  height: 132px;
+  z-index: 5;
+  pointer-events: none; /* container ignores taps */
+}
+.dpad-btn{
+  pointer-events: auto; /* buttons DO receive taps */
+  position:absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.35);
+  color: rgba(238,243,255,0.92);
+  font-weight: 900;
+  cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dpad-btn.up    { left: 44px; top: 0; }
+.dpad-btn.down  { left: 44px; bottom: 0; }
+.dpad-btn.left  { left: 0; top: 44px; }
+.dpad-btn.right { right: 0; top: 44px; }
+
+@media (max-width: 900px){
+  .dpad{ display:block; }
 }
