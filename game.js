@@ -290,19 +290,21 @@ emailForm.addEventListener("submit", async (e) => {
     });
 
     if (res.ok) {
-      formStatus.textContent = "Unlocked. You’re on the list.";
-      emailForm.reset();
-      setTimeout(() => closeOverlayAndReset(), 900);
-    } else {
-      formStatus.textContent = "Something went wrong — please try again.";
-    }
-  } catch {
-    formStatus.textContent = "Network error — please try again.";
-  }
-});
+  formStatus.textContent = "Unlocked. You’re on the list.";
+
+  // close the overlay + restart the game after a short beat
+  setTimeout(() => {
+    closeOverlayAndReset();   // <-- this is the key
+    emailForm.reset();
+  }, 600);
+
+} else {
+  formStatus.textContent = "Form submit failed — try again.";
+}
 
 // Ensure correct initial state
 overlay.hidden = true;
 setHud();
 loop();
+
 
